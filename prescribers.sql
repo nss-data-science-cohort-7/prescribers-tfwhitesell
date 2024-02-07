@@ -57,6 +57,14 @@ ORDER BY 2 DESC;
 
 -- 3. 
 --     a. Which drug (generic_name) had the highest total drug cost?
+SELECT d.generic_name, MAX(total_drug_cost) AS max_total_drug_cost
+FROM drug AS d
+LEFT JOIN prescription AS p
+ON d.drug_name = p.drug_name
+WHERE total_drug_cost IS NOT NULL
+GROUP BY 1
+ORDER BY 2 DESC;
+-- Pirfenidone has the highest total drug cost.
 
 --     b. Which drug (generic_name) has the hightest total cost per day? **Bonus: Round your cost per day column to 2 decimal 
 -- 	places. Google ROUND to see how this works.**
