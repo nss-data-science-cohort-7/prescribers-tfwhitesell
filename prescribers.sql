@@ -68,18 +68,14 @@ ORDER BY 2 DESC;
 
 --     b. Which drug (generic_name) has the highest total cost per day? **Bonus: Round your cost per day column to 2 decimal 
 -- 	places. Google ROUND to see how this works.**
-SELECT d.generic_name, MAX(total_drug_cost) AS max_total_drug_cost
+SELECT d.generic_name, ROUND(SUM(total_drug_cost) / SUM(total_day_supply), 2) AS cost_per_day
 FROM drug AS d
 LEFT JOIN prescription AS p
 ON d.drug_name = p.drug_name
 WHERE total_drug_cost IS NOT NULL
 GROUP BY 1
 ORDER BY 2 DESC;
-
-SELECT *
-FROM prescription
-ORDER BY total_drug_cost DESC
-LIMIT 10;
+-- C1 Esterase Inhibitor had the highest total cost per day at $3495.22.
 
 -- 4. 
 --     a. For each drug in the drug table, return the drug name and then a column named 'drug_type' which says 'opioid' for 
