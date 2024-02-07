@@ -37,6 +37,17 @@ ORDER BY 2 DESC;
 -- Family practice prescribers had the most total claims followed by Internal Medicine.
 
 --     b. Which specialty had the most total number of claims for opioids?
+SELECT p2.specialty_description,
+	SUM(total_claim_count) AS total_claims
+FROM prescription AS p1
+LEFT JOIN prescriber AS p2
+ON p1.npi = p2.npi
+LEFT JOIN drug AS d
+ON p1.drug_name = d.drug_name
+WHERE d.opioid_drug_flag = 'Y'
+GROUP BY 1
+ORDER BY 2 DESC;
+-- Nurse Practitioner is the specialty with the most total claims for opioids.
 
 --     c. **Challenge Question:** Are there any specialties that appear in the prescriber table that have no associated 
 -- 	prescriptions in the prescription table?
