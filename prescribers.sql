@@ -92,6 +92,24 @@ GROUP BY 1, 2;
 
 --     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids 
 -- 	or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
+WITH drug_flag AS (
+	SELECT drug_name,
+		CASE WHEN opioid_drug_flag = 'Y'
+				THEN 'opioid'
+			WHEN antibiotic_drug_flag = 'Y'
+				THEN 'antibiotic'
+			ELSE 'neither' END AS drug_type
+	FROM drug
+	GROUP BY 1, 2
+)
+
+SELECT d.drug_type,
+	SUM(CAST(p.total_drug_cost AS MONEY)) AS total_drug_cost
+FROM drug_flag AS d
+LEFT JOIN prescription AS p
+	ON d.drug_name = p.drug_name
+GROUP BY 1;
+-- Total cost of opioid prescriptions is approximately 3 times the total cost of antibiotic prescriptions.
 
 -- 5. 
 --     a. How many CBSAs are in Tennessee? **Warning:** The cbsa table contains information for all states, not just Tennessee.
