@@ -123,5 +123,26 @@ GROUP BY 1;
 -- There are 42 CBSAs in Tennessee
 
 --     b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population.
+(SELECT cbsaname,
+	SUM(population) AS total_cbsa_population
+FROM cbsa
+INNER JOIN population
+USING(fipscounty)
+GROUP BY 1
+ORDER BY 2
+LIMIT 1)
+
+UNION
+
+(SELECT cbsaname,
+	SUM(population) AS total_cbsa_population
+FROM cbsa
+INNER JOIN population
+USING(fipscounty)
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 1);
+-- Morristown, TN has the smallest CBSA population.
+-- Nashville-Davidson-Murfreesboro-Franklin, TN has the largest CBSA population.
 
 --     c. What is the largest (in terms of population) county which is not included in a CBSA? Report the county name and population.
