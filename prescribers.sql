@@ -51,8 +51,8 @@ ORDER BY 2 DESC;
 
 --     c. **Challenge Question:** Are there any specialties that appear in the prescriber table that have no associated 
 -- 	prescriptions in the prescription table?
-SELECT specialty_description,
-	COUNT(drug_name)
+SELECT specialty_description
+-- 	, COUNT(drug_name)
 FROM prescriber AS p1
 LEFT JOIN prescription AS p2
 USING(npi)
@@ -62,6 +62,34 @@ HAVING COUNT(drug_name) = 0;
 
 --     d. **Difficult Bonus:** *Do not attempt until you have solved all other problems!* For each specialty, report the 
 -- 	percentage of total claims by that specialty which are for opioids. Which specialties have a high percentage of opioids?
+
+-- new approach: use CASE statements to define new columns for non-opioid and opioid claims in CTE
+-- then do math in main query
+WITH claims AS (
+	SELECT p1.specialty_description,
+		CASE WHEN opioid_drug_flag = 'Y'
+				THEN total_claim_count
+			ELSE 0 END AS opioid_claims,
+		CASE WHEN opioid_drug_flag = 'N'
+				THEN total_claim_count
+			ELSE 0 END AS non_opioid_claims
+	FROM prescriber AS p1
+	INNER JOIN prescription AS p2
+		ON p1.npi = p2.npi
+	INNER JOIN drug AS d
+		ON p2.drug_name = d.drug_name
+)
+
+SELECT specialty_description,
+	SUM(opioid_claims) AS opioid_claims,
+	SUM(non_opioid_claims) AS non_opioid_claims,
+	ROUND((SUM(opioid_claims * 1.0) / (SUM(opioid_claims) + SUM(non_opioid_claims)) * 100), 2) AS percent_opioid
+FROM claims
+GROUP BY 1
+ORDER BY 4 DESC;
+-- Case Manager/Care Coordinator is the specialty with the highest percentage of opioid claims at 72%, but that specialty only has 50
+-- prescription claims total. The highest percentage of opioid claims for a specialty with a significant number of claims is
+-- Intervention Pain Management at 59.47%.
 
 -- 3. 
 --     a. Which drug (generic_name) had the highest total drug cost?
@@ -96,7 +124,8 @@ SELECT drug_name,
 			THEN 'antibiotic'
 		ELSE 'neither' END AS drug_type
 FROM drug
-GROUP BY 1, 2;
+GROUP BY 1, 2
+ORDER BY 2 DESC;
 
 --     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids 
 -- 	or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
@@ -165,3 +194,24 @@ WHERE fipscounty NOT IN (
 ORDER BY 2 DESC
 LIMIT 1;
 -- The largest county by population not in a CBSA is Sevier County.
+
+-- 6. 
+--     a. Find all rows in the prescription table where total_claims is at least 3000. Report the drug_name and the total_claim_count.
+
+--     b. For each instance that you found in part a, add a column that indicates whether the drug is an opioid.
+
+--     c. Add another column to you answer from the previous part which gives the prescriber first and last name associated with each row.
+
+-- 7. The goal of this exercise is to generate a full list of all pain management specialists in Nashville and the number of 
+-- 	claims they had for each opioid. **Hint:** The results from all 3 parts will have 637 rows.
+
+--     a. First, create a list of all npi/drug_name combinations for pain management specialists (specialty_description = 'Pain 
+-- 	Management) in the city of Nashville (nppes_provider_city = 'NASHVILLE'), where the drug is an opioid (opiod_drug_flag = 'Y'). 
+-- 	**Warning:** Double-check your query before running it. You will only need to use the prescriber and drug tables since you don't 
+-- 	need the claims numbers yet.
+
+--     b. Next, report the number of claims per drug per prescriber. Be sure to include all combinations, whether or not the prescriber 
+-- 	had any claims. You should report the npi, the drug name, and the number of claims (total_claim_count).
+    
+--     c. Finally, if you have not done so already, fill in any missing values for total_claim_count with 0.
+-- 	Hint - Google the COALESCE function.
