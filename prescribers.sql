@@ -113,6 +113,14 @@ GROUP BY 1;
 
 -- 5. 
 --     a. How many CBSAs are in Tennessee? **Warning:** The cbsa table contains information for all states, not just Tennessee.
+SELECT state,
+	COUNT(cbsa) AS num_cbsa
+FROM fips_county
+INNER JOIN cbsa
+USING(fipscounty)
+WHERE state = 'TN'
+GROUP BY 1;
+-- There are 42 CBSAs in Tennessee
 
 --     b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population.
 
