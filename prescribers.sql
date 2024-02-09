@@ -146,3 +146,14 @@ LIMIT 1);
 -- Nashville-Davidson-Murfreesboro-Franklin, TN has the largest CBSA population.
 
 --     c. What is the largest (in terms of population) county which is not included in a CBSA? Report the county name and population.
+SELECT county,
+	population
+FROM fips_county AS f
+INNER JOIN population AS p
+USING(fipscounty)
+WHERE fipscounty NOT IN (
+	SELECT fipscounty
+	FROM cbsa)
+ORDER BY 2 DESC
+LIMIT 1;
+-- The largest county by population not in a CBSA is Sevier County.
