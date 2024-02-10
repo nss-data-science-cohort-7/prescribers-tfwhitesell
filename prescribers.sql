@@ -279,3 +279,34 @@ LEFT JOIN claims AS c
     
 --     c. Finally, if you have not done so already, fill in any missing values for total_claim_count with 0.
 -- 	Hint - Google the COALESCE function.
+WITH claims AS (
+	SELECT p1.npi,
+		p2.drug_name,
+		p2.total_claim_count
+	FROM prescriber AS p1
+	INNER JOIN prescription AS p2
+		ON p1.npi = p2.npi
+	INNER JOIN drug AS d
+		ON p2.drug_name = d.drug_name
+	WHERE specialty_description = 'Pain Management'
+		AND nppes_provider_city = 'NASHVILLE'
+		AND opioid_drug_flag = 'Y'
+),
+
+opioids AS (
+	SELECT npi,
+		drug_name
+	FROM prescriber
+	CROSS JOIN drug
+	WHERE specialty_description = 'Pain Management'
+		AND nppes_provider_city = 'NASHVILLE'
+		AND opioid_drug_flag = 'Y'
+)
+
+SELECT o.npi,
+	o.drug_name,
+	COALESCE(c.total_claim_count, 0) AS total_claim_count
+FROM opioids AS o
+LEFT JOIN claims AS c
+	ON o.npi = c.npi
+		AND o.drug_name = c.drug_name;
