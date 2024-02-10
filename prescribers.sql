@@ -235,6 +235,16 @@ ORDER BY 1;
 -- 	Management) in the city of Nashville (nppes_provider_city = 'NASHVILLE'), where the drug is an opioid (opiod_drug_flag = 'Y'). 
 -- 	**Warning:** Double-check your query before running it. You will only need to use the prescriber and drug tables since you don't 
 -- 	need the claims numbers yet.
+SELECT p1.npi,
+	d.drug_name
+FROM prescriber AS p1
+INNER JOIN prescription AS p2
+	ON p1.npi = p2.npi
+INNER JOIN drug AS d
+	ON p2.drug_name = d.drug_name
+WHERE specialty_description = 'Pain Management'
+	AND nppes_provider_city = 'NASHVILLE'
+	AND opioid_drug_flag = 'Y';
 
 --     b. Next, report the number of claims per drug per prescriber. Be sure to include all combinations, whether or not the prescriber 
 -- 	had any claims. You should report the npi, the drug name, and the number of claims (total_claim_count).
