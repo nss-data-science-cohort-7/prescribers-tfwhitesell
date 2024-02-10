@@ -73,6 +73,17 @@ GROUP BY ROLLUP(opioid_drug_flag, specialty_description);
 
 -- 6. Switch the order of the variables inside the ROLLUP. That is, use ROLLUP(specialty_description, opioid_drug_flag). 
 -- How does this change the result?
+SELECT specialty_description,
+	opioid_drug_flag,
+	SUM(total_claim_count) AS total_claims
+FROM prescriber AS p1
+INNER JOIN prescription AS p2
+	ON p1.npi = p2.npi
+INNER JOIN drug AS d
+	on p2.drug_name = d.drug_name
+WHERE specialty_description IN ('Interventional Pain Management', 'Pain Management')
+GROUP BY ROLLUP(specialty_description, opioid_drug_flag);
+-- The rows are reordered.
 
 -- 7. Finally, change your query to use the CUBE function instead of ROLLUP. How does this impact the output?
 
