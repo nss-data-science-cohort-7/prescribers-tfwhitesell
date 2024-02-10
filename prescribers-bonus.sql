@@ -45,6 +45,17 @@ GROUP BY GROUPING SETS ((specialty_description), ());
 -- 4. In addition to comparing the total number of prescriptions by specialty, let's also bring in information about the 
 -- number of opioid vs. non-opioid claims by these two specialties. Modify your query (still making use of GROUPING SETS 
 -- so that your output also shows the total number of opioid claims vs. non-opioid claims by these two specialites.
+SELECT specialty_description,
+	opioid_drug_flag,
+	SUM(total_claim_count) AS total_claims
+FROM prescriber AS p1
+INNER JOIN prescription AS p2
+	ON p1.npi = p2.npi
+INNER JOIN drug AS d
+	on p2.drug_name = d.drug_name
+WHERE specialty_description IN ('Interventional Pain Management', 'Pain Management')
+GROUP BY GROUPING SETS ((specialty_description), (opioid_drug_flag), ())
+ORDER BY 1, 2;
 
 -- 5. Modify your query by replacing the GROUPING SETS with ROLLUP(opioid_drug_flag, specialty_description). How is the result 
 -- different from the output from the previous query?
