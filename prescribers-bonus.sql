@@ -113,3 +113,39 @@ GROUP BY CUBE(specialty_description, opioid_drug_flag);
 -- category column, and one value column. So in this case, you need to have a city column, a drug label column, and a total claim  count column.
 -- Hint #3: The sql statement that goes inside of crosstab must be surrounded by single quotes. If the query that you are using also 
 -- uses single quotes, you'll need to escape them by turning them into double-single quotes.
+SELECT *
+FROM crosstab(
+	'SELECT INITCAP(nppes_provider_city) AS nppes_provider_city,
+		CASE WHEN LOWER(generic_name) LIKE ''%hydrocodone%''
+				THEN ''Hydrocodone''
+			WHEN LOWER(generic_name) LIKE ''%oxycodone%''
+				THEN ''Oxycodone''
+			WHEN LOWER(generic_name) LIKE ''%oxymorphone%''
+				THEN ''Oxymorphone''
+			WHEN LOWER(generic_name) LIKE ''%morphine%''
+				THEN ''Morphine''
+			WHEN LOWER(generic_name) LIKE ''%codeine%''
+				THEN ''Codeine''
+			WHEN LOWER(generic_name) LIKE ''%fentanyl%''
+				THEN ''Fentanyl''
+			END AS opioid_category,
+		SUM(total_claim_count) AS total_claim_count
+	FROM prescriber AS p1
+	INNER JOIN prescription AS p2
+		ON p1.npi = p2.npi
+	INNER JOIN drug AS d
+		ON p2.drug_name = d.drug_name
+	WHERE nppes_provider_city IN (''NASHVILLE'',
+								 ''MEMPHIS'',
+								 ''KNOXVILLE'',
+								 ''CHATTANOOGA'')
+		AND opioid_drug_flag = ''Y''
+	GROUP BY 1, 2
+	ORDER BY 1, 2'
+) AS ct(nppes_provider_city text, 
+		Hydrocodone numeric, 
+		Oxycodone numeric, 
+		Oxymorphone numeric, 
+		Morphine numeric, 
+		Codeine numeric, 
+		Fentanyl numeric);
