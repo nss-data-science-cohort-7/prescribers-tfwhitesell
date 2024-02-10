@@ -55,10 +55,21 @@ INNER JOIN drug AS d
 	on p2.drug_name = d.drug_name
 WHERE specialty_description IN ('Interventional Pain Management', 'Pain Management')
 GROUP BY GROUPING SETS ((specialty_description), (opioid_drug_flag), ())
-ORDER BY 1, 2;
+ORDER BY 1 DESC, 2 DESC;
 
 -- 5. Modify your query by replacing the GROUPING SETS with ROLLUP(opioid_drug_flag, specialty_description). How is the result 
 -- different from the output from the previous query?
+SELECT specialty_description,
+	opioid_drug_flag,
+	SUM(total_claim_count) AS total_claims
+FROM prescriber AS p1
+INNER JOIN prescription AS p2
+	ON p1.npi = p2.npi
+INNER JOIN drug AS d
+	on p2.drug_name = d.drug_name
+WHERE specialty_description IN ('Interventional Pain Management', 'Pain Management')
+GROUP BY ROLLUP(opioid_drug_flag, specialty_description);
+-- ROLLUP also calculates the total_claims per specialty for opioid and non-opioid drugs.
 
 -- 6. Switch the order of the variables inside the ROLLUP. That is, use ROLLUP(specialty_description, opioid_drug_flag). 
 -- How does this change the result?
