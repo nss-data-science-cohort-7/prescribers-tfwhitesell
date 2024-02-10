@@ -33,8 +33,14 @@ WHERE specialty_description IN ('Interventional Pain Management', 'Pain Manageme
 GROUP BY 1
 ORDER BY 1;
 
--- 3. Now, instead of using UNION, make use of GROUPING SETS 
--- (https://www.postgresql.org/docs/10/queries-table-expressions.html#QUERIES-GROUPING-SETS) to achieve the same output.
+-- 3. Now, instead of using UNION, make use of GROUPING SETS to achieve the same output.
+SELECT specialty_description,
+	SUM(total_claim_count) AS total_claims
+FROM prescriber AS p1
+INNER JOIN prescription AS p2
+	ON p1.npi = p2.npi
+WHERE specialty_description IN ('Interventional Pain Management', 'Pain Management')
+GROUP BY GROUPING SETS ((specialty_description), ());
 
 -- 4. In addition to comparing the total number of prescriptions by specialty, let's also bring in information about the 
 -- number of opioid vs. non-opioid claims by these two specialties. Modify your query (still making use of GROUPING SETS 
