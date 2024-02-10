@@ -214,6 +214,19 @@ INNER JOIN drug AS d
 WHERE total_claim_count >= 3000;
 
 --     c. Add another column to your answer from the previous part which gives the prescriber first and last name associated with each row.
+SELECT CONCAT(nppes_provider_first_name, ' ', nppes_provider_last_org_name) AS provider_name,
+	p.drug_name,
+	total_claim_count,
+	CASE WHEN opioid_drug_flag = 'Y'
+			THEN 'Y'
+		ELSE 'N' END AS opioid_indicator
+FROM prescription AS p
+INNER JOIN drug AS d
+	ON p.drug_name = d.drug_name
+INNER JOIN prescriber AS p2
+	ON p.npi = p2.npi
+WHERE total_claim_count >= 3000
+ORDER BY 1;
 
 -- 7. The goal of this exercise is to generate a full list of all pain management specialists in Nashville and the number of 
 -- 	claims they had for each opioid. **Hint:** The results from all 3 parts will have 637 rows.
