@@ -52,7 +52,6 @@ ORDER BY 2 DESC;
 --     c. **Challenge Question:** Are there any specialties that appear in the prescriber table that have no associated 
 -- 	prescriptions in the prescription table?
 SELECT specialty_description
--- 	, COUNT(drug_name)
 FROM prescriber AS p1
 LEFT JOIN prescription AS p2
 USING(npi)
@@ -62,9 +61,6 @@ HAVING COUNT(drug_name) = 0;
 
 --     d. **Difficult Bonus:** *Do not attempt until you have solved all other problems!* For each specialty, report the 
 -- 	percentage of total claims by that specialty which are for opioids. Which specialties have a high percentage of opioids?
-
--- new approach: use CASE statements to define new columns for non-opioid and opioid claims in CTE
--- then do math in main query
 WITH claims AS (
 	SELECT p1.specialty_description,
 		CASE WHEN opioid_drug_flag = 'Y'
@@ -93,7 +89,7 @@ ORDER BY 4 DESC;
 
 -- 3. 
 --     a. Which drug (generic_name) had the highest total drug cost?
-SELECT d.generic_name, SUM(total_drug_cost) AS total_drug_cost
+SELECT d.generic_name, CAST(SUM(total_drug_cost) AS MONEY) AS total_drug_cost
 FROM drug AS d
 LEFT JOIN prescription AS p
 ON d.drug_name = p.drug_name
@@ -104,7 +100,7 @@ ORDER BY 2 DESC;
 
 --     b. Which drug (generic_name) has the highest total cost per day? **Bonus: Round your cost per day column to 2 decimal 
 -- 	places. Google ROUND to see how this works.**
-SELECT d.generic_name, ROUND(SUM(total_drug_cost) / SUM(total_day_supply), 2) AS cost_per_day
+SELECT d.generic_name, CAST(ROUND(SUM(total_drug_cost) / SUM(total_day_supply), 2) AS MONEY) AS cost_per_day
 FROM drug AS d
 LEFT JOIN prescription AS p
 ON d.drug_name = p.drug_name
@@ -150,14 +146,12 @@ GROUP BY 1;
 
 -- 5. 
 --     a. How many CBSAs are in Tennessee? **Warning:** The cbsa table contains information for all states, not just Tennessee.
-SELECT state,
-	COUNT(cbsa) AS num_cbsa
+SELECT COUNT(DISTINCT cbsa) AS num_cbsa
 FROM fips_county
 INNER JOIN cbsa
 USING(fipscounty)
-WHERE state = 'TN'
-GROUP BY 1;
--- There are 42 CBSAs in Tennessee
+WHERE state = 'TN';
+-- There are 10 CBSAs in Tennessee
 
 --     b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population.
 (SELECT cbsaname,
